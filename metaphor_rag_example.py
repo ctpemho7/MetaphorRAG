@@ -15,15 +15,16 @@ Key components:
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 from optimum.bettertransformer import BetterTransformer
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.retrievers import BM25Retriever
+from langchain_community.retrievers import BM25Retriever
 from sentence_transformers import CrossEncoder
 from typing import List, Dict, Tuple
 from functools import lru_cache
 import langdetect
-import numpy as np
+
+from data_loader import load_documents_from_folders
 
 
 class BilingualTranslator:
@@ -66,8 +67,7 @@ class BilingualTranslator:
         return self.translation_pipeline(
             text,
             src_lang="ru",
-            tgt_lang="en",
-            max_length=512
+            tgt_lang="en"
         )[0]['translation_text']
 
     @lru_cache(maxsize=1000)
@@ -76,8 +76,7 @@ class BilingualTranslator:
         return self.translation_pipeline(
             text,
             src_lang="en",
-            tgt_lang="ru",
-            max_length=512
+            tgt_lang="ru"
         )[0]['translation_text']
 
 
@@ -303,8 +302,9 @@ class PsychologicalRAG:
 
     def process_chunks(self, text: str, metadata: dict) -> List:
         """Process and chunk text with translation if needed."""
-        english_text = self.translator.to_english(text)
-        
+        # english_text = self.translator.to_english(text)
+        english_text = text
+
         try:
             original_lang = langdetect.detect(text)
         except:
@@ -427,18 +427,14 @@ def main():
         device="cuda" if torch.cuda.is_available() else "cpu",
         load_in_4bit=True
     )
+
+    metadata_b17 = {'source': 'b17.ru', 'type': 'article'}
+    metadata_k = {'source': 'Karpavichus', 'type': 'book'}
+    metadata_psy = {'source': 'Telegram', 'type': 'QA'}
     
     documents = {
-        'grounded': [
-            {
-                'text': 'Professional article about anxiety management...',
-                'metadata': {'source': 'journal', 'type': 'article'}
-            },
-            {
-                'text': 'Техники управления тревожностью...',
-                'metadata': {'source': 'journal', 'type': 'article'}
-            }
-        ],
+        'grounded': load_documents_from_folders(r"C:\itmo\2024_1\LLM-basic\metaphor\texts\b17", metadata_b17) 
+                    + load_documents_from_folders(r"C:\itmo\2024_1\LLM-basic\metaphor\texts\karpavichus", metadata_k),
         'diverse': [
             {
                 'text': 'Reddit post about coping with work stress...',
@@ -449,16 +445,7 @@ def main():
                 'metadata': {'source': 'reddit', 'type': 'post'}
             }
         ],
-        'empathy': [
-            {
-                'text': 'Supportive conversation about dealing with anxiety...',
-                'metadata': {'source': 'dialogue', 'type': 'conversation'}
-            },
-            {
-                'text': 'Диалог поддержки о том, как справляться с тревогой...',
-                'metadata': {'source': 'dialogue', 'type': 'conversation'}
-            }
-        ]
+        'empathy': load_documents_from_folders(r"C:\itmo\2024_1\LLM-basic\metaphor\texts\b17", metadata_psy)
     }
     
     # Index documents
