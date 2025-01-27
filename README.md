@@ -13,6 +13,18 @@ Pipeline:
 2. Add CBT Principles.
 3. Adapt relevant soutions based on user request.  
 
+## Validation
+
+100 questions were generated, and then they were asked to RAG pipeline.  After that, the relevance of the answers was evaluated with the help of an LLM judge (ChatGPT 4o Mini) using prompt:
+
+> I'll send you some texts now. Your task is to evaluate from 1 to 5 the relevance of the answer provided after the question. Specify only the number from 1 to 5, where:
+> 1 is a completely irrelevant answer.
+> 2 - a poorly relevant answer
+> 3 - partially relevant answer
+> 4 - generally relevant answer
+> 5 - completely relevant answer
+
+Mean relevance score: `4.59`. You can find validation examples in `validation_output.json`.
 
 ## Examples
 
