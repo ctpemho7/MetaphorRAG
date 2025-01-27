@@ -13,6 +13,8 @@ Pipeline:
 2. Add CBT Principles.
 3. Adapt relevant soutions based on user request.  
 
+[Presentation](https://docs.google.com/presentation/d/1sjxXLtmXaKqnWQHgeaaUciVIA15A4Mqvosp73T-MstQ/edit?usp=sharing)
+
 ## Validation
 
 100 questions were generated, and then they were asked to RAG pipeline.  After that, the relevance of the answers was evaluated with the help of an LLM judge (ChatGPT 4o Mini) using prompt:
